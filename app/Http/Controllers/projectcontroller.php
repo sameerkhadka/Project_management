@@ -12,24 +12,43 @@ use App\Models\task;
 
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
+
 class projectcontroller extends Controller
 {
     public function index()
-    {  
-        $search = request()->query('search');
-        if($search){
-            $completed = Task::select('*')
-            ->where('title','LIKE', "%{$search}%")
-            ->where('completed', '=', 0)
-            ->get();
+    
+    {  if(auth()->user()->isAdmin()){
 
-        } else{
+            $search = request()->query('search');
+            if($search){
+                $completed = Task::select('*')
+                ->where('title','LIKE', "%{$search}%")
+                ->where('completed', '=', 0)
+                ->orderBy('priority', 'asc')
+                ->orderBy('updated_at', 'DESC')
+                ->get();
 
-            $completed = DB::select('select * from tasks where completed = ?', ['0']);
-
+            } 
+            else{
+                $completed = Task::select('*')
+                ->where('completed', '=', 0)
+                ->orderBy('priority', 'asc')
+                ->orderBy('updated_at', 'DESC')
+                ->get();
+            }
         }
 
-       
+        else{
+                 $user_id = Auth::id();
+                 $completed = Task::select('*')
+                ->where('assigned_to','like', "%\"{$user_id}\"%")
+                ->where('completed', '=', 0)
+                ->orderBy('priority', 'asc')
+                ->orderBy('updated_at', 'DESC')
+                ->get();  
+        }
+
         return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
     } 
 
@@ -43,6 +62,8 @@ class projectcontroller extends Controller
         $completed = Task::select('*')
         ->where('Company', '=', [$company_name])
         ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
         ->get();
       
 
@@ -54,6 +75,8 @@ class projectcontroller extends Controller
         $completed = Task::select('*')
         ->where('department', '=', ['design'])
         ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
         ->get();
 
         return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
@@ -64,6 +87,8 @@ class projectcontroller extends Controller
         $completed = Task::select('*')
         ->where('department', '=', ['web'])
         ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
         ->get();
         
         return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
@@ -74,8 +99,23 @@ class projectcontroller extends Controller
         $completed = Task::select('*')
         ->where('department', '=', ['print'])
         ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
         ->get();
     
+        return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
+    }
+
+    public function user_task($user_id)
+    {   
+       
+        $completed = Task::select('*')
+        ->where('assigned_to','like', "%\"{$user_id}\"%")
+        ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
+        ->get();       
+
         return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
     }
 
@@ -83,6 +123,8 @@ class projectcontroller extends Controller
     {
         $completed = Task::select('*')
         ->where('completed', '=', 1)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
         ->get();
         
 

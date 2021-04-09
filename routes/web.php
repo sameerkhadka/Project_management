@@ -36,6 +36,8 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/companytask/{company_name}','App\Http\Controllers\projectcontroller@companytask');
 
+    Route::get('/user_task/{user_id}','App\Http\Controllers\projectcontroller@user_task');    
+
     Route::get('/design','App\Http\Controllers\projectcontroller@design');
 
     Route::get('/web','App\Http\Controllers\projectcontroller@web');
@@ -44,5 +46,6 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/completed','App\Http\Controllers\projectcontroller@completed');
 
+    Route::delete('tasks/{id}/{images}/delete','App\Http\Controllers\Taskscontroller@deleteimg');
 
 });

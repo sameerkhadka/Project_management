@@ -26,10 +26,8 @@ class CreateTasksRequest extends FormRequest
         return [
             'title' => 'required',
             'assigned_to' => 'required',
-            'contact_person' => 'required',
             'priority' => 'required',
-            'company' => 'required'
-        
+            'company' => 'required', 
         ];
     }
 }

@@ -7,15 +7,20 @@
                     <tr>
                         <th>SN</th>
                         <th>Company</th>
+                        @if(auth()->user()->isAdmin())
                         <th>Edit</th>
                         <th>Delete</th>
+                        @endif
                     </tr>
                     @foreach($companies as $company)
                     <tr>
-                        <td>1</td>
-                        <td>{{ $company->name }}</td>
+                        <td>{{$loop->iteration}}</td>
+                        <td> <a href="/companytask/{{ $company->id }}">{{ $company->name }}</a>
+                        </td>
+                        @if(auth()->user()->isAdmin())
                         <td><a href="{{route('companies.edit', $company->id)}}"><i class="far fa-edit"></i></a> </td>
                         <td><button onclick="handleDelete({{ $company->id  }})"><i class="far fa-trash-alt"></i></button></td>
+                        @endif
                     </tr>
                     @endforeach
 

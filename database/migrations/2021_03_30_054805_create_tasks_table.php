@@ -17,7 +17,7 @@ class CreateTasksTable extends Migration
             $table->increments('id');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('department');
+            $table->string('department')->nullable();
             $table->json('assigned_to');
             $table->text('contact_person')->nullable();
             $table->string('priority');

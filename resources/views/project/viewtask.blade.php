@@ -5,9 +5,21 @@
                 <div class="tash-headwrap">
                     <ul class="td-head">
                         <li>
-                            Priority: <span>Urgent</span>
+                            Priority: 
+                            @if($task->priority==1)
+                                Urgent
+                        
+                            @elseif($task->priority==2)
+                                High
+                        
+                            @elseif($task->priority==3)
+                                Medium
+                        
+                            @elseif($task->priority==4)
+                                Low
+                            @endif               
                         </li>
-
+                        @if(auth()->user()->isAdmin())
                         <li>
                         <form action="/tasks/{{ $task->id  }}/completed" method="POST">
                              @csrf
@@ -17,6 +29,7 @@
                         </form>
                         </li>
                     </ul>
+                  
                     <ul class='actions'>
                         <li>                           
                             <a href="{{route('tasks.edit', $task->id)}}" class="edit-btn">Edit</a>
@@ -24,6 +37,7 @@
     
                         <li><button onclick="handleDelete({{ $task->id  }})" class="delete-btn">Delete</button></li>
                     </ul>
+                    @endif
                 </div>
 
             
@@ -70,10 +84,17 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-4">
+                                <div class="task-show">
+                                    <label for="">Assigned Date</label>
+                                    <h4>{{ $task->created_at  }}</h4>
+                                </div>
+                            </div>
+
                             <div class="col-md-12">
                                 <div class="task-show">
                                     <label for=""> Description</label>
-                                    <h4> {{ $task->description  }}</h4>
+                                    <h4> {!! $task->description  !!}</h4>
                                 </div>
                             </div>
                         </div>
@@ -86,14 +107,16 @@
                     <h5>Media</h5>
 
                     <div class="media-wrap">
-                        <a href="{{ asset('storage/' . $task->image)  }}" data-lightbox="media-img">
-                            <img src="{{ asset('storage/' . $task->image)  }}" alt="">
-                        </a>                 
-              
+                        @if(!$task->image == '')
+                        @foreach(json_decode($task->image) as $img)
+                            <a href="{{ asset('storage/tasks/' . $img)  }}" target="_blank" data-lightbox="media-img">                                    
+                            <img src="{{ asset('storage/tasks/' . $img)  }}" alt="">
+                            </a>
+                        @endforeach     
+                        @endif     
                     </div>
-                </div>
-                
-            </div>
+                </div>              
+            </div>   
         </div>
 
     </div>
@@ -110,7 +133,7 @@
        
         <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="deleteModalLabel">Delete Company</h5>
+              <h5 class="modal-title" id="deleteModalLabel">Delete Task</h5>
              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
              <span aria-hidden="true"></span>
              </button>

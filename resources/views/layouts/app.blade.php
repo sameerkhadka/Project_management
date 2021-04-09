@@ -16,6 +16,8 @@
 
 
     <link rel="stylesheet" href="{{ asset('asset/css/style.css') }}">
+
+    @yield('css')
     
 </head>
 <body> 
@@ -78,11 +80,13 @@
 
 @auth
 
+
+
 @if(session()->has('success'))
 
 <div class="alert alert-success  hs-alert" role="alert">
  
-  <p><i class="far fa-check-circle"></i> {{session()->get('success')}} </p>
+  <p><i class="far fa-check-circle"></i> {{session()->pull('success')}} </p>
 </div>
 
 
@@ -131,6 +135,7 @@
         
 
         <ul class="ml-auto">
+        @if(auth()->user()->isAdmin())
             <li>
                 <a href="{{route('tasks.index') }}" class="btn-add task-btn"><i class="fas fa-plus"></i> Task</a>
             </li>
@@ -158,6 +163,7 @@
                   </div>
                 </form>
             </li>
+            @endif 
 
             <li>
                 <a href="" class="profile" id="profile-click"><img src="{{  asset('asset/images/male.jpg') }}"  alt="">  </a>
@@ -192,7 +198,7 @@
                     
                 </div>
             </div>
-
+           
             <div class="as-cont">
                 <h4>
                     <i class="fas fa-folder-open"></i> Department
@@ -211,25 +217,6 @@
                 </ul>
             </div>
 
-            <div class="as-cont">
-                <h4>
-                    <i class="fas fa-th-list"></i> Company
-                </h4>
-
-                <ul>
-                    @foreach($companies as $company)
-                    <li>
-                        <a href="/companytask/{{ $company->id }}">{{ $company->name }}</a>
-                    </li>                   
-                    @endforeach
-
-                   
-              
-
-                </ul>
-
-                <a href="{{ route('view') }}" class="all-list">View All <i class="fas fa-long-arrow-alt-right"></i></a>
-            </div>
 
             <div class="as-cont">
                 <h4>
@@ -239,7 +226,7 @@
                 <ul>
                      @foreach($users as $user)
                     <li>
-                        <a href="">{{ $user->name }}</a>
+                        <a href="/user_task/{{ $user->id }}">{{ $user->name }}</a>
                     </li>
                     @endforeach
                     <!-- <li> 
@@ -257,11 +244,33 @@
 
             <div class="as-cont">
                 <h4>
+                <a href="{{ route('view') }}" > <i class="fas fa-th-list"></i> Company</a>
+                </h4>
+
+                <!-- <ul>
+                    @foreach($companies as $company)
+                    <li>
+                        <a href="/companytask/{{ $company->id }}">{{ $company->name }}</a>
+                    </li>                   
+                    @endforeach
+
+                   
+              
+
+                </ul>
+
+                <a href="{{ route('view') }}" class="all-list">View All <i class="fas fa-long-arrow-alt-right"></i></a> -->
+            </div>
+
+            <div class="as-cont">
+                <h4>
                     <a href="/completed"><i class="fas fa-clipboard-check"></i> Completed</a>
                 </h4>
 
         </aside>       
  @yield('content')   
+
+ 
 
  @endauth
  

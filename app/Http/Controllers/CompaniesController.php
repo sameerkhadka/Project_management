@@ -50,7 +50,7 @@ class CompaniesController extends Controller
 
         session()->flash('success' , 'Company Created Successfully');
 
-        return view('project.companies')->with('companies', Company::all())->with('users',User::all());
+        return view('project.companies')->with('companies', Company::orderBy('name', 'ASC')->get())->with('users',User::all());
     }
 
     /**
@@ -90,7 +90,7 @@ class CompaniesController extends Controller
 
         session()->flash('success' , 'Company Updated Successfully');
 
-        return view('project.companies')->with('companies', Company::all())->with('users', User::all());
+        return view('project.companies')->with('companies', Company::orderBy('name', 'ASC')->get())->with('users', User::all());
     }
 
     /**
@@ -105,12 +105,12 @@ class CompaniesController extends Controller
 
         session()->flash('success', 'company deleted successfully');
 
-        return view('project.companies')->with('companies', Company::all())->with('users', User::all());
+        return view('project.companies')->with('companies', Company::orderBy('name', 'ASC')->get())->with('users', User::all());
 
     }
 
     public function view()
     {
-        return view('project.companies')->with('companies', Company::all())->with('users', User::all());
+        return view('project.companies')->with('companies', Company::orderBy('name', 'ASC')->get())->with('users', User::all());
     }
 }

@@ -49,3 +49,5 @@
         </div>
     </section>
 @endsection
+ <!-- @if(auth()->user()->isAdmin()) -->
+<!-- @endif -->

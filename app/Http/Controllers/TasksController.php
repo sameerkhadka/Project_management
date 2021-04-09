@@ -27,7 +27,13 @@ class TasksController extends Controller
      */
     public function index()
     {
-       $completed = DB::select('select * from tasks where completed = ?', ['0']);
+        $completed = Task::select('*')
+        ->where('completed', '=', 0)
+        ->orderBy('priority', 'asc')
+        ->orderBy('updated_at', 'DESC')
+        ->get();
+ 
+       
        return view('project.tasks')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
     }
 
@@ -47,37 +53,53 @@ class TasksController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateTasksRequest $request)
-    {
-        if($request->hasfile('image'))
-        {
-            foreach($request->file('image') as $image)
-            {
-                $name=$image->getClientOriginalName();
-                $image = move(asset('storage/' . $name));
-                $data[] = $name;
-            }
-        }
+    public function store(Request $request)
+    {   
+        $this->validate($request, [
+            'company' => 'required', 
+            'title' => 'required',
+            'assigned_to' => 'required',
+            'priority' => 'required',
+            'image.*' => 'mimes:jpg,jpeg,png|max:2000'
+          ],[
+            'image.*.mimes' => 'Only jpeg, png, jpg images are allowed',
+            'image.*.max' => 'Sorry! Maximum allowed size for an image is 2MB',
+        ]);
+
+        $task = new Task();
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->department = $request->department;
+        $task->assigned_to = json_encode($request->assigned_to);
+        $task->contact_person = $request->contact_person;
+        $task->priority = $request->priority;        
+        $task->company = $request->company;
         //upload the image to the storage
-       
-         
+        if($request->hasFile('image'))
+        {
 
-       Task::create([
+            foreach($request->file('image') as $image) 
+            {
 
-        'title' => $request->title ,
-        'description' => $request->description,
-        'department' => $request->department,
-        'assigned_to' => json_encode($request->assigned_to),
-        'contact_person' => $request->contact_person,
-        'priority' => $request->priority,
-        'image' => json_encode($image),
-        'company' => $request->company
-        
-       ]);
+                $filename = $image->getClientOriginalName();
+
+                $image->storeAs('tasks', $filename);
+
+                $imgData[] = $filename;
+
+            }
+
+            $task->image = json_encode($imgData);
+        }
+        $task->save();
 
        session()->flash('success', 'Task Created successfully'); 
 
-       $completed = DB::select('select * from tasks where completed = ?', ['0']);
+       $completed = Task::select('*')
+       ->where('completed', '=', 0)
+       ->orderBy('priority', 'asc')
+       ->orderBy('updated_at', 'DESC')
+       ->get();
        
        return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
     }
@@ -112,34 +134,78 @@ class TasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateTaskRequest $request, Task $task)
+    public function update(Request $request)
     {
-        $data = $request->all();
-        //check if new image
-        if($request->hasFile('image')){
+        $this->validate($request, [
+            'company' => 'required', 
+            'title' => 'required',
+            'assigned_to' => 'required',
+            'priority' => 'required',
+            'image.*' => 'mimes:jpg,jpeg,png|max:2000'
+          ],[
+            'image.*.mimes' => 'Only jpeg, png, jpg images are allowed',
+            'image.*.max' => 'Sorry! Maximum allowed size for an image is 2MB',
+        ]);
 
-        //upload it
-        $image = $request->image->store('tasks'); 
 
-        //delete old one
+        if($request->hasFile('image'))
+        {   
+            $data = Task::find($request->task);
 
-        Storage::delete($task->image);
+            // if(!$data->image == '')
+            // {
 
-        $data['image'] = $image;
-        }   
+            //     foreach (json_decode($data->image) as $images) 
+            //     { 
+            //         Storage::delete("tasks/{$images}");   
+        
+            //     }   
 
-        //update attributes
+            // }
 
-        $task->update($task);
+            foreach($request->file('image') as $image) 
+            {
 
+                $filename = $image->getClientOriginalName();
+
+                $image->storeAs('tasks', $filename);
+               
+                $imgData = json_decode($data->image);
+
+                array_push($imgData,$filename);
+                                           
+                $data->image = json_encode($imgData);
+
+                $data->save();
+            }
+            
+              
+           
+        }
+        
+        $data = Task::find($request->task);
+        $data->title = $request->title;
+        $data->description = $request->description;
+        $data->department = $request->department;
+        $data->assigned_to = json_encode($request->assigned_to);
+        $data->contact_person = $request->contact_person;
+        $data->priority = $request->priority;
+        $data->company = $request->company;
+
+        $data->save();
+       
         //flash message
 
         session()->flash('success', 'Task updated successfully');
 
         //redirect user
-        $completed = DB::select('select * from tasks where completed = ?', ['0']);
+        $completed = Task::select('*')
+            ->where('completed', '=', 0)
+            ->orderBy('priority', 'asc')
+            ->orderBy('updated_at', 'DESC')
+            ->get();    
        
-        return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
+            return redirect()->route('tasks.show', $data->id)->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
 
     }
 
@@ -150,12 +216,22 @@ class TasksController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task)
-    {                     
-           Storage::delete($task->image);
+    {   
+        if(!$task->image == '')
+        {
+            foreach (json_decode($task->image) as $images) {
+   
+                Storage::delete("tasks/{$images}");             
+            } 
+        }  
             $task->delete();   
             session()->flash('success', 'Task deleted successfully');   
-            $completed = DB::select('select * from tasks where completed = ?', [0]);        
-          return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
+            $completed = Task::select('*')
+            ->where('completed', '=', 0)
+            ->orderBy('priority', 'asc')
+            ->orderBy('updated_at', 'DESC')
+            ->get();    
+            return view('project.index')->with('companies', Company::all())->with('users', User::all())->withTasks($completed);
     }
 
     public function completed(Task $task)
@@ -184,5 +260,18 @@ class TasksController extends Controller
         
     }
 
+    public function deleteimg($images, Request $req)
+    {
+        $task = Task::find($req['task_id']);
+        dd($task);
+        $images=json_decode($task->image);
+        dd($images);
+        unset($images[$image]);
+        $task->image=json_encode(array_values(images));
+        $task->save();
+        return redirect()->back();
+       
+        
+    }
    
 }

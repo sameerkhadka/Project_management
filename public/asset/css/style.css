@@ -246,10 +246,12 @@ a.btn-add.company-btn:hover {
     border: 1px solid #ececec;
     padding: 20px;
     display: none;
+    z-index: 3;
 }
 
 .show {
     display: block;
+
 }
 
 
@@ -375,11 +377,16 @@ ul.actions {
     margin-left: auto;
 } 
 
-ul.actions button, ul.actions a {
+ul.actions button, ul.actions a,ul.actions button, ul.actions button {
     border: 0;
     font-size: 15px;
     padding: 5px 20px;
     border-radius: 30px;
+    display: block;
+}
+
+.task-form trix-editor {
+    min-height: 240px;
 }
 
 .edit-btn {
@@ -723,4 +730,17 @@ section.login-wrap {
     padding: 4px 15px;
     border-radius: 10px;
     font-size: 14px;
+}
+
+.m-img-wrap {
+    display: inline;
+    position: relative;
+}
+
+a.del-img {
+    border: 0;
+    color: #005b7f;
+    font-size: 20px;
+    position: absolute;
+    right: 10px;
 }
